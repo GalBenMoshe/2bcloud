@@ -29,5 +29,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "v1"
+          tags: "${{ secrets.AZURE_URL }}/myimage:v1"
           file: Dockerfile
