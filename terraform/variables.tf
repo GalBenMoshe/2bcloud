@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   description = "Name of the Azure resource group"
   type        = string
-  default     = "MC_Gal-Candidate_aks-cluster_westeurope"
+  default     = "Gal-Candidate"
 }
 
 variable "location" {

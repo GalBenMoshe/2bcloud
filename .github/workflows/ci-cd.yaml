@@ -54,3 +54,14 @@ jobs:
             resource-group: "MC_Gal-Candidate_aks-cluster_westeurope"
             cluster-name: "aks-cluster"
         id: login
+
+      - name: Update Helm Chart Values with New Image Tag
+        run: |
+          sed -i 's/tag: .*/tag: ${GITHUB_SHA}/g' ./chart/values.yaml
+
+      - name: Deploy Helm Chart to AKS
+        run: |
+          helm upgrade --install my-release ./chart \
+            --set image.repository="${{ secrets.AZURE_URL }}/project" \
+            --set image.tag="${GITHUB_SHA}" \
+            --namespace default
