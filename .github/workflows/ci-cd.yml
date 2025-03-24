@@ -4,20 +4,17 @@ on:
   push:
     branches:
       - main
-env:
-  IMAGE_NAME: my-image  # Change to your image name
-  RESOURCE_GROUP: Gal-Candidate  # Change to your AKS resource group
-  AKS_CLUSTER_NAME: aks-cluster  # Change to your AKS cluster name
-  NAMESPACE: default  # Change if using a different namespace
-  CHART_PATH: ./chart  # Path to your Helm chart
+# env:
+#   IMAGE_NAME: my-image  # Change to your image name
+#   RESOURCE_GROUP: Gal-Candidate  # Change to your AKS resource group
+#   AKS_CLUSTER_NAME: aks-cluster  # Change to your AKS cluster name
+#   NAMESPACE: default  # Change if using a different namespace
+#   CHART_PATH: ./chart  # Path to your Helm chart
 
 jobs:
   build:
     name: 'Build and Push to ACR'
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write  
-      contents: read 
 
     defaults:
       run:
@@ -34,9 +31,26 @@ jobs:
           username: "ci-token"
           password: ${{ secrets.ACR_ACCESS_TOKEN }}b
   
-      - name: Build and Push to ACR
-        uses: docker/build-push-action@v2
+      # - name: Build and Push to ACR
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     push: true
+      #     tags: "${{ secrets.AZURE_URL }}/myimage:v1"
+      #     file: Dockerfile
+
+      - name: Build image on ACR
+        uses: azure/CLI@61bb69d64d613b52663984bf12d6bac8fd7b3cc8
         with:
-          push: true
-          tags: "${{ secrets.AZURE_URL }}/myimage:v1"
-          file: Dockerfile
+          azcliversion: 2.29.1
+          inlineScript: |
+            az configure --defaults acr=${{ secrets.AZURE_URL }}
+            az acr build -t -t ${{ secrets.AZURE_URL }}/project:${{ github.sha }}
+
+      - name: Gets K8s context
+        uses: azure/aks-set-context@94ccc775c1997a3fcfbfbce3c459fec87e0ab188
+        with:
+            username: "ci-token"
+            password: ${{ secrets.ACR_ACCESS_TOKEN }}
+            resource-group: "MC_Gal-Candidate_aks-cluster_westeurope"
+            cluster-name: "aks-cluster"
+        id: login
