@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - main
-# env:
-#   IMAGE_NAME: my-image  # Change to your image name
-#   RESOURCE_GROUP: Gal-Candidate  # Change to your AKS resource group
-#   AKS_CLUSTER_NAME: aks-cluster  # Change to your AKS cluster name
-#   NAMESPACE: default  # Change if using a different namespace
-#   CHART_PATH: ./chart  # Path to your Helm chart
 
 jobs:
   build:
@@ -32,37 +26,38 @@ jobs:
           password: ${{ secrets.ACR_ACCESS_TOKEN }}
   
       - name: Build and Push to ACR
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
+          context: .
           push: true
           tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
           file: Dockerfile
 
-      # - name: Build image on ACR
-      #   uses: azure/CLI@61bb69d64d613b52663984bf12d6bac8fd7b3cc8
-      #   with:
-      #     azcliversion: 2.29.1
-      #     inlineScript: |
-      #       az login --tenant bd4f0481-b137-40f1-9e64-20cfd55fbf49 -u Gal@2bcloudsandbox.onmicrosoft.com -p Gbm032025
-      #       az configure --defaults acr=${{ secrets.AZURE_URL }}
-      #       az acr build -t ${{ secrets.AZURE_URL }}/project:${{ github.sha }} ./Dockerfile
-
-      - name: Gets K8s context
-        uses: azure/aks-set-context@94ccc775c1997a3fcfbfbce3c459fec87e0ab188
+      - name: 'Az CLI login'
+        uses: azure/login@v1
         with:
-            username: "ci-token"
-            password: ${{ secrets.ACR_ACCESS_TOKEN }}
-            resource-group: "MC_Gal-Candidate_aks-cluster_westeurope"
-            cluster-name: "aks-cluster"
-        id: login
+          client-id: "47ab1ccc-c1d3-4592-b951-7c4cce6e7365"
+          tenant-id: "bd4f0481-b137-40f1-9e64-20cfd55fbf49"
+          subscription-id: "2fa0e512-f70e-430f-9186-1b06543a848e"
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: "Gal-Candidate"
+          cluster-name: "aks-cluster"
+      
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
 
       - name: Update Helm Chart Values with New Image Tag
         run: |
-          sed -i 's/tag: .*/tag: ${GITHUB_SHA}/g' ./chart/values.yaml
+          sed -i "s/tag: .*/tag: ${{ github.sha }}/g" ./chart/values.yaml
 
       - name: Deploy Helm Chart to AKS
         run: |
           helm upgrade --install my-release ./chart \
-            --set image.repository="${{ secrets.AZURE_URL }}/project" \
-            --set image.tag="${GITHUB_SHA}" \
-            --namespace default
+            --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
+            --set image.tag="${{ github.sha }}" \
+            --namespace default \
+            --create-namespace
