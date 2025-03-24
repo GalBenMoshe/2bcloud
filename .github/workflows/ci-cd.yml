@@ -4,11 +4,20 @@ on:
   push:
     branches:
       - main
+env:
+  IMAGE_NAME: my-image  # Change to your image name
+  RESOURCE_GROUP: Gal-Candidate  # Change to your AKS resource group
+  AKS_CLUSTER_NAME: aks-cluster  # Change to your AKS cluster name
+  NAMESPACE: default  # Change if using a different namespace
+  CHART_PATH: ./chart  # Path to your Helm chart
 
 jobs:
   build:
     name: 'Build and Push to ACR'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  
+      contents: read 
 
     defaults:
       run:
