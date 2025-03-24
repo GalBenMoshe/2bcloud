@@ -31,21 +31,21 @@ jobs:
           username: "ci-token"
           password: ${{ secrets.ACR_ACCESS_TOKEN }}b
   
-      # - name: Build and Push to ACR
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     push: true
-      #     tags: "${{ secrets.AZURE_URL }}/myimage:v1"
-      #     file: Dockerfile
-
-      - name: Build image on ACR
-        uses: azure/CLI@61bb69d64d613b52663984bf12d6bac8fd7b3cc8
+      - name: Build and Push to ACR
+        uses: docker/build-push-action@v2
         with:
-          azcliversion: 2.29.1
-          inlineScript: |
-            az login --tenant bd4f0481-b137-40f1-9e64-20cfd55fbf49 -u Gal@2bcloudsandbox.onmicrosoft.com -p Gbm032025
-            az configure --defaults acr=${{ secrets.AZURE_URL }}
-            az acr build -t ${{ secrets.AZURE_URL }}/project:${{ github.sha }} ./Dockerfile
+          push: true
+          tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
+          file: Dockerfile
+
+      # - name: Build image on ACR
+      #   uses: azure/CLI@61bb69d64d613b52663984bf12d6bac8fd7b3cc8
+      #   with:
+      #     azcliversion: 2.29.1
+      #     inlineScript: |
+      #       az login --tenant bd4f0481-b137-40f1-9e64-20cfd55fbf49 -u Gal@2bcloudsandbox.onmicrosoft.com -p Gbm032025
+      #       az configure --defaults acr=${{ secrets.AZURE_URL }}
+      #       az acr build -t ${{ secrets.AZURE_URL }}/project:${{ github.sha }} ./Dockerfile
 
       - name: Gets K8s context
         uses: azure/aks-set-context@94ccc775c1997a3fcfbfbce3c459fec87e0ab188
