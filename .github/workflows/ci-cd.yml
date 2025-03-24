@@ -1,0 +1,33 @@
+name: CI/CD Pipeline for image building and application deployment on AKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: 'Build and Push to ACR'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker Login with ACR Token
+        uses: azure/docker-login@v1
+        with:
+          login-server: "${{ secrets.AZURE_URL }}"
+          username: "00000000-0000-0000-0000-000000000000"  # Static username for ACR tokens
+          password: ${{ secrets.ACR_ACCESS_TOKEN }}
+  
+      - name: Build and Push to ACR
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: "v1"
+          file: Dockerfile
