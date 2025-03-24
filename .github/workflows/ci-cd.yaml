@@ -43,6 +43,7 @@ jobs:
         with:
           azcliversion: 2.29.1
           inlineScript: |
+            az login --tenant bd4f0481-b137-40f1-9e64-20cfd55fbf49 -u Gal@2bcloudsandbox.onmicrosoft.com -p Gbm032025
             az configure --defaults acr=${{ secrets.AZURE_URL }}
             az acr build -t ${{ secrets.AZURE_URL }}/project:${{ github.sha }} ./Dockerfile
 
