@@ -29,7 +29,7 @@ jobs:
         with:
           login-server: "${{ secrets.AZURE_URL }}"
           username: "ci-token"
-          password: ${{ secrets.ACR_ACCESS_TOKEN }}b
+          password: ${{ secrets.ACR_ACCESS_TOKEN }}
   
       - name: Build and Push to ACR
         uses: docker/build-push-action@v2
