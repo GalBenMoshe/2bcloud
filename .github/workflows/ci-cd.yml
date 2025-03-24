@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+env:
+  IMAGE_NAME: my-image  # Change to your image name
+  RESOURCE_GROUP: Gal-Candidate  # Change to your AKS resource group
+  AKS_CLUSTER_NAME: aks-cluster  # Change to your AKS cluster name
+  NAMESPACE: default  # Change if using a different namespace
+  CHART_PATH: ./chart  # Path to your Helm chart
 
 jobs:
   build:
@@ -21,13 +27,38 @@ jobs:
       - name: Docker Login with ACR Token
         uses: azure/docker-login@v1
         with:
-          login-server: "${{ secrets.AZURE_URL }}"
+          login-server: ${{ secrets.AZURE_URL }}
           username: "ci-token"  # Static username for ACR tokens
           password: ${{ secrets.ACR_ACCESS_TOKEN }}
-  
-      - name: Build and Push to ACR
-        uses: docker/build-push-action@v2
+          
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          push: true
-          tags: "${{ secrets.AZURE_URL }}/myimage:v1"
-          file: Dockerfile
+          client-id: "6b538652-9a18-4385-bd68-c8ea6e60d28b"
+          tenant-id: "bd4f0481-b137-40f1-9e64-20cfd55fbf49"
+          subscription-id: "2fa0e512-f70e-430f-9186-1b06543a848e"
+
+      - name: Build and Push Docker Image
+        run: |
+          IMAGE_TAG=$(date +%Y%m%d%H%M%S)  # Unique timestamp-based tag
+          docker build -t $${{ secrets.AZURE_URL }}/$IMAGE_NAME:$IMAGE_TAG .
+          docker push ${{ secrets.AZURE_URL }}/$IMAGE_NAME:$IMAGE_TAG
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV  # Save for later
+
+      # 🔹 Set up kubectl and get AKS credentials
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group Gal-Candidate --name aks-cluster
+
+      # 🔹 Update Helm Chart Values (Change Image Tag)
+      - name: Update Helm Values File
+        run: |
+          sed -i 's|tag:.*|tag: '"${{ env.IMAGE_TAG }}"'|' $CHART_PATH/values.yaml
+
+      # 🔹 Deploy using Helm
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install my-app $CHART_PATH \
+            --namespace $NAMESPACE \
+            --set image.repository=${{ secrets.AZURE_URL }}/$IMAGE_NAME \
+            --set image.tag=${{ env.IMAGE_TAG }}
