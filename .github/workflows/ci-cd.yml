@@ -15,6 +15,9 @@ jobs:
   build:
     name: 'Build and Push to ACR'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  
+      contents: read 
 
     defaults:
       run:
