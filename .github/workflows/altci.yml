@@ -82,4 +82,3 @@ jobs:
       - name: Verify Deployment
         run: |
           kubectl --kubeconfig=$(pwd)/kubeconfig get deployments -n default
-          kubectl --kubeconfig=$(pwd)/kubeconfig get pods -n default | grep myapp
