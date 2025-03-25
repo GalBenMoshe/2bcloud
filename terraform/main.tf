@@ -3,6 +3,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = var.location
   resource_group_name = var.resource_group_name
   dns_prefix          = "aksdns"
+  oidc_issuer_enabled = true 
 
   default_node_pool {
     name       = "default"
@@ -20,3 +21,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
 }
+
+resource "github_actions_secret" "aks_kubeconfig" {
+  repository      = "2bcloud"
+  secret_name     = "KUBECONFIG_DATA"
+  plaintext_value = base64encode(azurerm_kubernetes_cluster.aks.kube_config_raw)
+}
+

@@ -14,8 +14,8 @@
 
 terraform {
   backend "azurerm" {
-    resource_group_name  = var.resource_group_name
-    storage_account_name = var.storage_account_name
+    resource_group_name  = "MC_Gal-Candidate_aks-cluster_westeurope"
+    storage_account_name = "galtfbackendstorage"
     container_name       = "tfstate"
     key                  = "terraform.tfstate"
   }

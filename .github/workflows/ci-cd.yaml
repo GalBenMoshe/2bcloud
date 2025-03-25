@@ -8,9 +8,9 @@ on:
     branches:
       - main
 
-permissions:
-  id-token: write
-  contents: read
+# permissions:
+#   id-token: write
+#   contents: read
 
 jobs:
   build-and-deploy:
@@ -53,12 +53,6 @@ jobs:
           push: true
           tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
           file: Dockerfile
-
-      # - name: Set AKS Context
-      #   uses: azure/aks-set-context@v3
-      #   with:
-      #     resource-group: ${{ vars.RESOURCE_GROUP || 'Gal-Candidate' }}
-      #     cluster-name: ${{ vars.AKS_CLUSTER_NAME || 'aks-cluster' }}
 
       - name: Install Helm
         uses: azure/setup-helm@v3
