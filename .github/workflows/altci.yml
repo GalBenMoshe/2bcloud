@@ -30,6 +30,7 @@ jobs:
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > kubeconfig
           export KUBECONFIG=$(pwd)/kubeconfig
           kubectl get nodes
+          kubectl config current-context || echo "No context found"
 
       - name: Set KUBECONFIG path
         run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
