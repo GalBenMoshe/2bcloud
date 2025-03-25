@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: myimage
+  repository: galcandidateacr.azurecr.io/myimage
   tag: latest
   pullPolicy: IfNotPresent
 

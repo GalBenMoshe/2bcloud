@@ -20,6 +20,8 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /usr/share/html
+      imagePullSecrets:
+        - name: acr-pull-secret
       volumes:
         - name: config-volume
           configMap:
