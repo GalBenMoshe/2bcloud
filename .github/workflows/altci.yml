@@ -30,6 +30,7 @@ jobs:
         with:
           federated-credentials: true
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          auth-type: IDENTITY
 
       - name: Docker Login to ACR
         uses: azure/docker-login@v1
