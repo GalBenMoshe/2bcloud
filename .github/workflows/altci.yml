@@ -31,9 +31,9 @@ jobs:
           export KUBECONFIG=$(pwd)/kubeconfig
           kubectl get nodes
 
-      - name: try
-        run: cat $KUBECONFIG
-  
+      - name: Set KUBECONFIG path
+        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
+          
       - name: Verify connection
         run: kubectl get nodes
 
