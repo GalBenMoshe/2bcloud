@@ -29,11 +29,6 @@ jobs:
         run: |
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > kubeconfig
           export KUBECONFIG=$(pwd)/kubeconfig
-          kubectl get nodes
-          kubectl config current-context || echo "No context found"
-
-      - name: Set KUBECONFIG path
-        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
           
       - name: Verify connection
         run: kubectl --kubeconfig=$(pwd)/kubeconfig get nodes
@@ -44,20 +39,20 @@ jobs:
       #     federated-credentials: true
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # - name: Docker Login to ACR
-      #   uses: azure/docker-login@v1
-      #   with:
-      #     login-server: "${{ secrets.AZURE_URL }}"
-      #     username: "ci-token"
-      #     password: ${{ secrets.ACR_ACCESS_TOKEN }}
+      - name: Docker Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: "${{ secrets.AZURE_URL }}"
+          username: "ci-token"
+          password: ${{ secrets.ACR_ACCESS_TOKEN }}
 
-      # - name: Build and Push Docker Image
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     push: true
-      #     tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
-      #     file: Dockerfile
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
+          file: Dockerfile
 
       # - name: Set AKS Context
       #   uses: azure/aks-set-context@v3
@@ -65,26 +60,26 @@ jobs:
       #     resource-group: ${{ vars.RESOURCE_GROUP || 'Gal-Candidate' }}
       #     cluster-name: ${{ vars.AKS_CLUSTER_NAME || 'aks-cluster' }}
 
-      # - name: Install Helm
-      #   uses: azure/setup-helm@v3
-      #   with:
-      #     version: 'latest'
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
 
-      # - name: Deploy to AKS with Helm
-      #   run: |
-      #     if [ -f ./chart/values.yaml ]; then
-      #       sed -i "s/tag: .*/tag: ${{ github.sha }}/g" ./chart/values.yaml
-      #     fi
+      - name: Deploy to AKS with Helm
+        run: |
+          if [ -f ./chart/values.yaml ]; then
+            sed -i "s/tag: .*/tag: ${{ github.sha }}/g" ./chart/values.yaml
+          fi
           
-      #     # Deploy or upgrade the Helm chart
-      #     helm upgrade --install myimage ./chart \
-      #       --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
-      #       --set image.tag="${{ github.sha }}" \
-      #       --namespace default \
-      #       --create-namespace \
-      #       --wait --timeout 5m
+          # Deploy or upgrade the Helm chart
+          helm upgrade --install myimage ./chart \
+            --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
+            --set image.tag="${{ github.sha }}" \
+            --namespace default \
+            --create-namespace \
+            --wait --timeout 5m
 
-      # - name: Verify Deployment
-      #   run: |
-      #     kubectl get deployments -n default
-      #     kubectl get pods -n default | grep myapp
+      - name: Verify Deployment
+        run: |
+          kubectl get deployments -n default
+          kubectl get pods -n default | grep myapp
