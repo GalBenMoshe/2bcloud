@@ -1,66 +1,67 @@
-name: CI/CD Pipeline for image building and application deployment on AKS
+# name: CI/CD Pipeline for image building and application deployment on AKS
 
-on:
-  push:
-    branches:
-      - main
-permissions:
-  id-token: write
-  contents: read
+# on:
+#   push:
+#     branches:
+#       - main
+# permissions:
+#   id-token: write
+#   contents: read
 
-jobs:
-  build:
-    name: 'Build and Push to ACR'
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     name: 'Build and Push to ACR'
+#     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        shell: bash
+#     defaults:
+#       run:
+#         shell: bash
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Docker Login with ACR Token
-        uses: azure/docker-login@v1
-        with:
-          login-server: "${{ secrets.AZURE_URL }}"
-          username: "ci-token"
-          password: ${{ secrets.ACR_ACCESS_TOKEN }}
+#       - name: Docker Login with ACR Token
+#         uses: azure/docker-login@v1
+#         with:
+#           login-server: "${{ secrets.AZURE_URL }}"
+#           username: "ci-token"
+#           password: ${{ secrets.ACR_ACCESS_TOKEN }}
   
-      - name: Build and Push to ACR
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
-          file: Dockerfile
+#       - name: Build and Push to ACR
+#         uses: docker/build-push-action@v4
+#         with:
+#           context: .
+#           push: true
+#           tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
+#           file: Dockerfile
 
-      - name: 'Az CLI login'
-        uses: azure/login@v1
-        with:
-          client-id: "47ab1ccc-c1d3-4592-b951-7c4cce6e7365"
-          tenant-id: "bd4f0481-b137-40f1-9e64-20cfd55fbf49"
-          subscription-id: "2fa0e512-f70e-430f-9186-1b06543a848e"
-      - name: Set AKS context
-        id: set-context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: "Gal-Candidate"
-          cluster-name: "aks-cluster"
+#       - name: 'Az CLI login'
+#         uses: azure/login@v1
+#         with:
+#           client-id: "47ab1ccc-c1d3-4592-b951-7c4cce6e7365"
+#           tenant-id: "bd4f0481-b137-40f1-9e64-20cfd55fbf49"
+#           subscription-id: "2fa0e512-f70e-430f-9186-1b06543a848e"
+          
+#       - name: Set AKS context
+#         id: set-context
+#         uses: azure/aks-set-context@v3
+#         with:
+#           resource-group: "Gal-Candidate"
+#           cluster-name: "aks-cluster"
       
 
-      - name: Install Helm
-        uses: azure/setup-helm@v3
+#       - name: Install Helm
+#         uses: azure/setup-helm@v3
 
-      - name: Update Helm Chart Values with New Image Tag
-        run: |
-          sed -i "s/tag: .*/tag: ${{ github.sha }}/g" ./chart/values.yaml
+#       - name: Update Helm Chart Values with New Image Tag
+#         run: |
+#           sed -i "s/tag: .*/tag: ${{ github.sha }}/g" ./chart/values.yaml
 
-      - name: Deploy Helm Chart to AKS
-        run: |
-          helm upgrade --install my-release ./chart \
-            --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
-            --set image.tag="${{ github.sha }}" \
-            --namespace default \
-            --create-namespace
+#       - name: Deploy Helm Chart to AKS
+#         run: |
+#           helm upgrade --install my-release ./chart \
+#             --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
+#             --set image.tag="${{ github.sha }}" \
+#             --namespace default \
+#             --create-namespace

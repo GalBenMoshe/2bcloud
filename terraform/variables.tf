@@ -4,6 +4,12 @@ variable "resource_group_name" {
   default     = "Gal-Candidate"
 }
 
+variable "storage_account_name" {
+  description = "Name of the Azure storage account"
+  type        = string
+  default     = "tfbackendstoragegal"
+}
+
 variable "location" {
   description = "Azure region for the AKS cluster"
   type        = string

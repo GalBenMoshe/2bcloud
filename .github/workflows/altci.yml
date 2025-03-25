@@ -1,0 +1,78 @@
+name: Alternative CI/CD Pipeline for AKS Deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: 'Build, Push, and Deploy to AKS'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: "47ab1ccc-c1d3-4592-b951-7c4cce6e7365"
+          tenant-id: "bd4f0481-b137-40f1-9e64-20cfd55fbf49"
+          subscription-id: "2fa0e512-f70e-430f-9186-1b06543a848e"
+
+      - name: Docker Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: "${{ secrets.AZURE_URL }}"
+          username: "ci-token"
+          password: ${{ secrets.ACR_ACCESS_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: "${{ secrets.AZURE_URL }}/myimage:${{ github.sha }}"
+          file: Dockerfile
+
+      - name: Set AKS Context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ vars.RESOURCE_GROUP || 'Gal-Candidate' }}
+          cluster-name: ${{ vars.AKS_CLUSTER_NAME || 'aks-cluster' }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Deploy to AKS with Helm
+        run: |
+          if [ -f ./chart/values.yaml ]; then
+            sed -i "s/tag: .*/tag: ${{ github.sha }}/g" ./chart/values.yaml
+          fi
+          
+          # Deploy or upgrade the Helm chart
+          helm upgrade --install myimage ./chart \
+            --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
+            --set image.tag="${{ github.sha }}" \
+            --namespace default \
+            --create-namespace \
+            --wait --timeout 5m
+
+      - name: Verify Deployment
+        run: |
+          kubectl get deployments -n default
+          kubectl get pods -n default | grep myapp
