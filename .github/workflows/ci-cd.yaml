@@ -8,10 +8,6 @@ on:
     branches:
       - main
 
-# permissions:
-#   id-token: write
-#   contents: read
-
 jobs:
   build-and-deploy:
     name: 'Build, Push, and Deploy to AKS'
@@ -66,7 +62,7 @@ jobs:
           fi
           
           # Deploy or upgrade the Helm chart
-          helm upgrade --install myimage --kubeconfig=$(pwd)/kubeconfig ./chart \
+          helm upgrade --install application --kubeconfig=$(pwd)/kubeconfig ./chart \
             --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
             --set image.tag="${{ github.sha }}" \
             --namespace default \
