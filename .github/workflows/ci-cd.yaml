@@ -1,4 +1,4 @@
-name: Alternative CI/CD Pipeline for AKS Deployment
+name: CI/CD Pipeline for AKS Deployment
 
 on:
   push:
