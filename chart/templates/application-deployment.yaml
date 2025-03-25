@@ -17,6 +17,11 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: 80
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 100m
           volumeMounts:
             - name: config-volume
               mountPath: /usr/share/html
