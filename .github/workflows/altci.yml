@@ -29,6 +29,7 @@ jobs:
         run: |
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > kubeconfig
           export KUBECONFIG=$(pwd)/kubeconfig
+          kubectl get nodes
 
       - name: try
         run: cat $KUBECONFIG
