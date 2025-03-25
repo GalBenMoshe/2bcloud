@@ -72,7 +72,7 @@ jobs:
           fi
           
           # Deploy or upgrade the Helm chart
-          helm upgrade --install myimage ./chart \
+          helm upgrade --install myimage --kubeconfig=$(pwd)/kubeconfig ./chart \
             --set image.repository="${{ secrets.AZURE_URL }}/myimage" \
             --set image.tag="${{ github.sha }}" \
             --namespace default \
