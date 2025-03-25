@@ -6,21 +6,31 @@ spec:
   behavior:
     scaleDown:
       policies:
-      - periodSeconds: 10
+      - periodSeconds: 60
         type: Pods
         value: 4
       selectPolicy: Max
-      stabilizationWindowSeconds: 30
+      stabilizationWindowSeconds: 10
+    scaleUp:
+      policies:
+      - periodSeconds: 15
+        type: Pods
+        value: 4
+      - periodSeconds: 15
+        type: Percent
+        value: 100
+      selectPolicy: Max
+      stabilizationWindowSeconds: 0
+  maxReplicas: 5
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 10
+        type: Utilization
+    type: Resource
+  minReplicas: 1
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: application
-  minReplicas: 1
-  maxReplicas: 5
-  metrics:
-    - type: po
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 10
