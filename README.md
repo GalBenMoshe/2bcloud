@@ -18,7 +18,7 @@ GitHub Actions: Automates CI/CD to build, push, and deploy the application.
 
 Docker: Packages the application into a Docker image.
 
-Python Application: The source code of the deployed application. It creates an API for our website. You can check it's health in the /health endpoint
+Python Application: The source code of the deployed application. It creates an API for our website. You can check it's health in the /healthz endpoint
 
 ### Note on Permissions:
 Due to limited permissions, I was unable to create roles for service principals. Instead, this setup leverages Kubeconfig for connecting to the cluster and pull secret for ACR connection. 
