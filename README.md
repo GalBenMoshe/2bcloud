@@ -40,7 +40,9 @@ Terraform is used to create the AKS cluster. It also updates a GitHub Secret wit
 Pay attention - you should create a personal access token in GitHub so terraform can access the repo and update the cluster's Kubeconfig.
 
 cd terraform
+
 terraform init
+
 terraform apply -var "github_token=[GITHUB-TOKEN]"
 
 ### 2. Configure GitHub Secrets
