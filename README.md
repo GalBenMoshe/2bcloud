@@ -75,7 +75,7 @@ Running the Application
 
 ## Done !
 
-# After Deployment
+### After Deployment
 
 ### Accessing the Cluster
 
