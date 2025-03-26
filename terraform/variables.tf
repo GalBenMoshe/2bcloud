@@ -4,12 +4,6 @@ variable "resource_group_name" {
   default     = "MC_Gal-Candidate_aks-cluster_westeurope"
 }
 
-# variable "storage_account_name" {
-#   description = "Name of the Azure storage account"
-#   type        = string
-#   default     = "tfbackendstoragegal"
-# }
-
 variable "location" {
   description = "Azure region for the AKS cluster"
   type        = string
