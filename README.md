@@ -1,61 +1,65 @@
-# AKS Deployment with GitHub Actions and Terraform
+### Application Deployment on Azure AKS with GitHub Actions and Terraform
 
-## Table of Contents
+### Table of Contents
 - [Overview](#overview)
-- [Repository Structure](#repository-structure)
 - [Deployment Workflow](#deployment-workflow)
-  - [Provision Infrastructure with Terraform](#1-provision-infrastructure-with-terraform)
-  - [Configure GitHub Secrets](#2-configure-github-secrets)
-  - [CI/CD Pipeline Execution](#3-cicd-pipeline-execution)
-- [Running the Application](#running-the-application)
-  - [Accessing the Cluster](#1-accessing-the-cluster)
-  - [Deploy the Helm Chart Manually](#2-deploy-the-helm-chart-manually)
-  - [Verify Deployment](#3-verify-deployment)
-- [Cleanup](#cleanup)
-- [Contributions](#contributions)
-- [License](#license)
+- [After Deployment](#after-deployment)
 
 
-
-AKS Deployment with GitHub Actions and Terraform
-
-Overview
+## Overview
 
 This repository provides an automated workflow for deploying an application to an Azure Kubernetes Service (AKS) cluster using Terraform, Helm, and GitHub Actions. The setup includes:
 
-Terraform: Provisions the AKS cluster and configures Azure Container Registry (ACR) integration.
+Terraform: Provisions the AKS cluster.
 
 Helm: Manages application deployment on AKS.
 
 GitHub Actions: Automates CI/CD to build, push, and deploy the application.
 
-Docker: Packages the application into a container image.
+Docker: Packages the application into a Docker image.
 
 Python Application: The source code of the deployed application.
 
-Deployment Workflow
+# Note on Permissions:
+Due to limited permissions, I was unable to create roles and service principals directly. Instead, this setup leverages Kubeconfig for connecting to the cluster and pull secret for ACR connection. 
 
-1. Provision Infrastructure with Terraform
+## Deployment Workflow
 
-Terraform is used to create the AKS cluster and configure access to ACR. It also updates GitHub Secrets with the cluster's kubeconfig.
+# Prerequisites
+
+1. Resource Group
+2. Storage Account
+3. Container in the Storage Account
+4. ACR instance (and an access token to it)
+
+Make sure to update the terraform values file accordingly.
+
+# 1. Provision Infrastructure with Terraform
+
+Terraform is used to create the AKS cluster. It also updates a GitHub Secret with the cluster's kubeconfig.
+Pay attention - you should create a personal access token in GitHub so terraform can access the repo and update the cluster's Kubeconfig.
 
 cd terraform
 terraform init
-terraform apply -auto-approve
+terraform apply -var "github_token=<GITHUB-TOKEN>"
 
-2. Configure GitHub Secrets
+# 2. Configure GitHub Secrets
 
 Ensure the following secrets are configured in GitHub:
-
-AZURE_CREDENTIALS: Service principal credentials for Azure.
 
 AZURE_URL: URL of the ACR instance.
 
 ACR_ACCESS_TOKEN: Token for ACR authentication.
 
-KUBECONFIG_DATA: Base64-encoded kubeconfig file for AKS access.
 
-3. CI/CD Pipeline Execution
+# 3. Create Pull Secret
+
+In order to access the ACR from the AKS cluster, you should create a pull sercret that contains the ACR token you created earlier.
+
+kubectl create secret docker-registry acr-pull-secret --docker-server=<ACR> --docker-username=<NAME> --docker-password="<TOKEN>" --namespace <YOUR-NAMESPACE>
+
+
+# 4. CI/CD Pipeline Execution
 
 The GitHub Actions workflow automates:
 
@@ -67,24 +71,29 @@ Building and pushing the Docker image to ACR
 
 Deploying the application to AKS using Helm
 
-The pipeline triggers on push to main and pull requests.
-
 Running the Application
 
-1. Accessing the Cluster
+# Done !
+
+## After Deployment
+
+# Accessing the Cluster
 
 Retrieve the kubeconfig and connect to AKS:
 
-echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > kubeconfig
-export KUBECONFIG=$(pwd)/kubeconfig
-kubectl get nodes
+az aks get-credentials --resource-group <RESOURCE-GROUP> --name <AKS-CLUSTER-NAME>
 
-2. Deploy the Helm Chart Manually
+# Verify Deployment
 
-helm upgrade --install myapp ./chart --namespace default --wait --timeout 5m
+kubectl get pods -n <YOUR-NAMESPACE>
+kubectl get services -n <YOUR-NAMESPACE>
 
-3. Verify Deployment
+# Access The Application
 
-kubectl get pods -n default
-kubectl get services -n default
+kubectl get svc -n <YOUR-NAMESPACE>
 
+Get the service's IP address and browse to your application.
+
+# Change data
+
+If you wish to change the data shown in the website, edit the configmap in the helm chart.
