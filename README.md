@@ -21,7 +21,7 @@ Docker: Packages the application into a Docker image.
 Python Application: The source code of the deployed application. It creates an API for our website
 
 ### Note on Permissions:
-Due to limited permissions, I was unable to create roles and service principals directly. Instead, this setup leverages Kubeconfig for connecting to the cluster and pull secret for ACR connection. 
+Due to limited permissions, I was unable to create roles for service principals. Instead, this setup leverages Kubeconfig for connecting to the cluster and pull secret for ACR connection. 
 
 ## Deployment Workflow
 
@@ -41,7 +41,7 @@ Pay attention - you should create a personal access token in GitHub so terraform
 
 cd terraform
 terraform init
-terraform apply -var "github_token=<GITHUB-TOKEN>"
+terraform apply -var "github_token=[GITHUB-TOKEN]"
 
 ### 2. Configure GitHub Secrets
 
@@ -56,7 +56,7 @@ ACR_ACCESS_TOKEN: Token for ACR authentication.
 
 In order to access the ACR from the AKS cluster, you should create a pull sercret that contains the ACR token you created earlier.
 
-kubectl create secret docker-registry acr-pull-secret --docker-server=<ACR> --docker-username=<NAME> --docker-password="<TOKEN>" --namespace <YOUR-NAMESPACE>
+kubectl create secret docker-registry acr-pull-secret --docker-server=[ACR] --docker-username=[NAME] --docker-password="[TOKEN]" --namespace [YOUR-NAMESPACE]
 
 
 ### 4. CI/CD Pipeline Execution
@@ -81,16 +81,16 @@ Running the Application
 
 Retrieve the kubeconfig and connect to AKS:
 
-az aks get-credentials --resource-group <RESOURCE-GROUP> --name <AKS-CLUSTER-NAME>
+az aks get-credentials --resource-group [RESOURCE-GROUP] --name [AKS-CLUSTER-NAME]
 
 ### Verify Deployment
 
-kubectl get pods -n <YOUR-NAMESPACE>
-kubectl get services -n <YOUR-NAMESPACE>
+kubectl get pods -n [YOUR-NAMESPACE]
+kubectl get services -n [YOUR-NAMESPACE]
 
 ### Access The Application
 
-kubectl get svc -n <YOUR-NAMESPACE>
+kubectl get svc -n [YOUR-NAMESPACE]
 
 Get the service's IP address and browse to your application.
 
