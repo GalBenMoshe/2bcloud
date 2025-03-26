@@ -6,7 +6,7 @@
 - [After Deployment](#after-deployment)
 
 
-### Overview
+## Overview
 
 This repository provides an automated workflow for deploying an application to an Azure Kubernetes Service (AKS) cluster using Terraform, Helm, and GitHub Actions. The setup includes:
 
@@ -75,7 +75,7 @@ Running the Application
 
 ## Done !
 
-### After Deployment
+## After Deployment
 
 ### Accessing the Cluster
 
