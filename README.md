@@ -12,13 +12,13 @@ This repository provides an automated workflow for deploying an application to a
 
 Terraform: Provisions the AKS cluster.
 
-Helm: Manages application deployment on AKS.
+Helm: Manages application deployment on AKS. The chart includes deployment, service, configMap, load balancer service and HPA.
 
 GitHub Actions: Automates CI/CD to build, push, and deploy the application.
 
 Docker: Packages the application into a Docker image.
 
-Python Application: The source code of the deployed application. It creates an API for our website
+Python Application: The source code of the deployed application. It creates an API for our website. You can check it's health in the /health endpoint
 
 ### Note on Permissions:
 Due to limited permissions, I was unable to create roles for service principals. Instead, this setup leverages Kubeconfig for connecting to the cluster and pull secret for ACR connection. 
