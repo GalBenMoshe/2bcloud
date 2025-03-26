@@ -2,7 +2,7 @@ from flask import Flask, jsonify, send_from_directory
 
 app = Flask(__name__)
 
-@app.route('/health', methods=['GET'])
+@app.route('/healthz', methods=['GET'])
 def health_check():
     """
     Health check endpoint to verify the service is running.
