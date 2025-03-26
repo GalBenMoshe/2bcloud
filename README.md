@@ -61,17 +61,17 @@ kubectl create secret docker-registry acr-pull-secret --docker-server=[ACR] --do
 
 ### 4. CI/CD Pipeline Execution
 
+The workflow runs on push events to the main branch or pull requests targeting main only.
+
 The GitHub Actions workflow automates:
 
-Checking out the repository
+1. Checking out the repository
 
-Setting up the kubeconfig
+2. Setting up the kubeconfig
 
-Building and pushing the Docker image to ACR
+3. Building and pushing the Docker image to ACR
 
-Deploying the application to AKS using Helm
-
-Running the Application
+4. Deploying the application to AKS using Helm
 
 ## Done !
 
